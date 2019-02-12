@@ -4,14 +4,14 @@ var secret = require("./secret.js");
 var repoName = process.argv[3];
 var repoOwner = process.argv[2];
 
-console.log("Welcome to the GitHub Avatar Downloader!");
-
+console.log("- Welcome to the GitHub Avatar Downloader! -");
+// function retrieve the information frm github server based on the parameters entered with the command line
 function getRepoContributors(repoOwner, repoName, cb) {
   var options = {
     url: "https://api.github.com/repos/" + repoOwner + "/" + repoName + "/contributors",
     headers: {
       "User-Agent": "request",
-      Authorization: "token e7b2365d90b35893632f79c93a915433b8345600"
+      Authorization: "e7b2365d90b35893632f79c93a915433b8345600"
     }
   };
 
@@ -19,31 +19,33 @@ function getRepoContributors(repoOwner, repoName, cb) {
     cb(err, body);
   });
 }
-
+// function handles 2 parameters, 'avatar url' and 'filePath', and pipe the file
 function downloadImageByURL(url, filePath) {
-  //   var path = "./avatars/";
-
+  var path = "./avatars/"; // directory where avatar image files will be written
   request
     .get(url)
     .on("error", function(err) {
       throw err;
     })
     .on("response", function(response) {
-      console.log("Response Status Code: ", response.statusCode);
+      console.log("Downloaded" + "avatarimage - " + filePath);
     })
-    .pipe(fs.createWriteStream("./avatars/" + filePath));
+    .pipe(fs.createWriteStream(path + filePath));
 }
-
+// Invoking the main function with  arguments, handling error first
 getRepoContributors(repoOwner, repoName, function(err, result) {
   if (repoName === undefined || repoOwner === undefined) {
-    console.log("ERROR: please enter an argument");
+    console.log("--ERROR: please enter <repo-name> and <repo-owner>--");
     throw err;
   } else {
+    //Parses the contributors list from github api
     var list = JSON.parse(result);
-    for (var i = 0; i < list.length; i++) {
-      avatar_url = list[i].avatar_url;
-      user_name = list[i].login + ".jpg";
+    // Loops through the list, outputs the avarar url and user name
+    list.forEach(function(el) {
+      avatar_url = el.avatar_url;
+      user_name = el.login + ".jpg";
+      // Invokes function with the parameters found
       downloadImageByURL(avatar_url, user_name);
-    }
+    });
   }
 });
