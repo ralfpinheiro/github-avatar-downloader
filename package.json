@@ -4,6 +4,7 @@
   "description": "## Problem Statement",
   "main": "download_avatars.js",
   "dependencies": {
+    "mkdirp": "^0.5.1",
     "request": "^2.88.0"
   },
   "devDependencies": {},
