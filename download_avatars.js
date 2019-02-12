@@ -1,8 +1,8 @@
 var request = require("request");
 var fs = require("fs");
 var secret = require("./secret.js");
-var repoName = process.argv[2];
-var repoOwner = process.argv[3];
+var repoName = process.argv[3];
+var repoOwner = process.argv[2];
 
 console.log("Welcome to the GitHub Avatar Downloader!");
 
@@ -21,7 +21,7 @@ function getRepoContributors(repoOwner, repoName, cb) {
 }
 
 function downloadImageByURL(url, filePath) {
-  var path = "./avatars/";
+  //   var path = "./avatars/";
 
   request
     .get(url)
@@ -31,18 +31,19 @@ function downloadImageByURL(url, filePath) {
     .on("response", function(response) {
       console.log("Response Status Code: ", response.statusCode);
     })
-    .pipe(fs.createWriteStream(path + filePath));
+    .pipe(fs.createWriteStream("./avatars/" + filePath));
 }
 
-if (process.argv[2] === undefined || process.argv[2] === undefined) {
-  console.log("ERROR: please enter an argument");
-}
-
-getRepoContributors("repoOwner", "repoName", function(err, result) {
-  var list = JSON.parse(result);
-  for (var i = 0; i < list.length; i++) {
-    avatar_url = list[i].avatar_url;
-    user_name = list[i].login + ".jpg";
-    downloadImageByURL(avatar_url, user_name);
+getRepoContributors(repoOwner, repoName, function(err, result) {
+  if (repoName === undefined || repoOwner === undefined) {
+    console.log("ERROR: please enter an argument");
+    throw err;
+  } else {
+    var list = JSON.parse(result);
+    for (var i = 0; i < list.length; i++) {
+      avatar_url = list[i].avatar_url;
+      user_name = list[i].login + ".jpg";
+      downloadImageByURL(avatar_url, user_name);
+    }
   }
 });
